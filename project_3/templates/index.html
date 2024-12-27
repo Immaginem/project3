@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Введите города</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <main class="container">
+        <h1>Введите города для получения прогноза погоды</h1>
+
+        <!-- Форма для ввода городов -->
+        <form action="/result" method="POST" id="city-form">
+            <div id="city-inputs">
+                <div class="form-group city-input">
+                    <label for="departure-city-0">Город отправления:</label>
+                    <input type="text" id="departure-city-0" name="cities[]" placeholder="Введите город" required>
+                </div>
+            </div>
+
+            <button type="button" id="add-city" aria-label="Добавить город">Добавить город</button>
+            <button type="submit" aria-label="Отправить форму">Получить прогноз</button>
+        </form>
+    </main>
+
+    <script>
+        document.getElementById('add-city').addEventListener('click', function() {
+            const cityInputs = document.getElementById('city-inputs');
+            const inputCount = cityInputs.getElementsByClassName('city-input').length;
+
+            const newCityDiv = document.createElement('div');
+            newCityDiv.classList.add('form-group', 'city-input');
+            newCityDiv.innerHTML = `
+                <label for="departure-city-${inputCount}">Город:</label>
+                <input type="text" id="departure-city-${inputCount}" name="cities[]" placeholder="Введите город" required>
+                <button type="button" class="remove-city" aria-label="Удалить город">Удалить</button>
+            `;
+
+            cityInputs.appendChild(newCityDiv);
+
+            // Добавляем обработчик для удаления города
+            newCityDiv.querySelector('.remove-city').addEventListener('click', function() {
+                newCityDiv.remove();
+            });
+        });
+
+        // Проверка на дублирование городов перед отправкой формы
+        document.getElementById('city-form').addEventListener('submit', function(event) {
+            const inputs = document.querySelectorAll('input[name="cities[]"]');
+            const cities = Array.from(inputs).map(input => input.value.trim().toLowerCase());
+            const uniqueCities = new Set(cities);
+
+            if (cities.length !== uniqueCities.size) {
+                event.preventDefault();
+                alert('Вы ввели дублирующиеся города. Пожалуйста, удалите повторяющиеся записи.');
+            }
+        });
+    </script>
+</body>
+</html>
